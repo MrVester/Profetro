@@ -1,20 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.EventSystems.EventTrigger;
 
-public class CameraModSwitcher : MonoBehaviour
+public class CameraControl : MonoBehaviour
 {
     const float PI = 3.14159f;
     const float animationDuration = 0.5f;
 
+    public Texture2D moveCursorTexture;
+
     [Range(0f, 1f)]
     public float camTarAngle = 0.5f;
     [Range(2f, 10f)]
-    public float radius = 10;
+    public float radius = 5;
+
+    public float scrollScale = 1;
 
     public GameObject target;
     public Slider slider;
@@ -30,35 +35,79 @@ public class CameraModSwitcher : MonoBehaviour
     private CameraMode cammode;
 
 
+    private Vector3 deltaMousePosition;
+    private Vector3 currentMousePosition;
+    private Vector3 previousMousePosition;
+    private Vector3 mousePositionSum;
 
-    private void Start()
+
+
+    private void OnEnable()
     {
         cammode = ViewMode;
     }
 
     private void Update()
     {
+        SetCursor();
         if (!isCamLerp)
         {
             cammode();
+            ChangeAngleAndRad();
         }
 
 
         if (Input.GetKeyDown("space") && !isCamLerp)
         {
             SwitchCameraMode();
+
         }
 
+        SetMousePosition();
 
     }
 
-    public void SwitchCameraMode()
+    private void SetCursor()
+    {
+        if (Input.GetMouseButton(2) && !isCamLerp)
+        {
+            Vector2 moveCursorCenter = new Vector2(moveCursorTexture.Size().x / 2, moveCursorTexture.Size().y / 2);
+            Cursor.SetCursor(moveCursorTexture, moveCursorCenter, CursorMode.ForceSoftware);
+        }
+        else
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.ForceSoftware);
+    }
+
+    private void ChangeAngleAndRad()
+    {
+        camTarAngle = mousePositionSum.y;
+        radius -= Input.mouseScrollDelta.y * scrollScale;
+        radius = Mathf.Clamp(radius, 3, 10);
+    }
+
+    private void SetMousePosition()
+    {
+        previousMousePosition = currentMousePosition;
+        currentMousePosition = Input.mousePosition;
+
+        if (Input.GetMouseButton(2) && !isCamLerp)
+        {
+
+            deltaMousePosition = currentMousePosition - previousMousePosition;
+            mousePositionSum += deltaMousePosition * Time.deltaTime;
+            mousePositionSum.y = Mathf.Clamp01(mousePositionSum.y);
+
+        }
+        Debug.Log(mousePositionSum);
+    }
+
+    private void SwitchCameraMode()
     {
 
         switch (modenum)
         {
             case 0:
-                boardCamPos = new Vector3(target.transform.position.x, target.transform.position.y + 10, target.transform.position.z);
+                boardCamPos = new Vector3(target.transform.position.x, target.transform.position.y + radius, target.transform.position.z);
 
                 StartCoroutine(CameraLerp(transform.position, boardCamPos));
 
@@ -68,7 +117,7 @@ public class CameraModSwitcher : MonoBehaviour
                 break;
             case 1:
                 //angle
-                circularAngle = slider.value * 2 * PI;
+                circularAngle = mousePositionSum.x * 2 * PI;
                 //camera position on a circle
                 viewCamPos = new Vector3(target.transform.position.x + Mathf.Cos(circularAngle) * radius, radius * Mathf.Tan(camTarAngle), target.transform.position.z + Mathf.Sin(circularAngle) * radius);
 
@@ -85,7 +134,7 @@ public class CameraModSwitcher : MonoBehaviour
     private void ViewMode()
     {
         //angle
-        circularAngle = slider.value * 2 * PI;
+        circularAngle = mousePositionSum.x * 2 * PI;
         //camera position on a circle
         viewCamPos = new Vector3(target.transform.position.x + Mathf.Cos(circularAngle) * radius, radius * Mathf.Tan(camTarAngle), target.transform.position.z + Mathf.Sin(circularAngle) * radius);
         transform.position = viewCamPos;
@@ -95,10 +144,10 @@ public class CameraModSwitcher : MonoBehaviour
 
     private void BoardMode()
     {
-        boardCamPos = new Vector3(target.transform.position.x, target.transform.position.y + 10, target.transform.position.z);
+        boardCamPos = new Vector3(target.transform.position.x, target.transform.position.y + radius, target.transform.position.z);
         transform.position = boardCamPos;
-        // transform.position = Vector3.Lerp(transform.position, boardCamPos, interpolationRatio);
-        transform.rotation = Quaternion.Euler(90, -slider.value * 360, 90);
+
+        transform.rotation = Quaternion.Euler(90, -mousePositionSum.x * 360, 90);
     }
 
     private IEnumerator CameraLerp(Vector3 startpoint, Vector3 endpoint)
