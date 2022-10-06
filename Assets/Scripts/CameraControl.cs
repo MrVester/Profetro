@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 using static UnityEngine.EventSystems.EventTrigger;
 
 public class CameraControl : MonoBehaviour
@@ -22,7 +21,6 @@ public class CameraControl : MonoBehaviour
     public float scrollScale = 1;
 
     public GameObject target;
-    public Slider slider;
 
     public float circularAngle;
 
@@ -71,8 +69,8 @@ public class CameraControl : MonoBehaviour
     {
         if (Input.GetMouseButton(2) && !isCamLerp)
         {
-            Vector2 moveCursorCenter = new Vector2(moveCursorTexture.Size().x / 2, moveCursorTexture.Size().y / 2);
-            Cursor.SetCursor(moveCursorTexture, moveCursorCenter, CursorMode.ForceSoftware);
+            //Vector2 moveCursorCenter = new Vector2(moveCursorTexture.Size().x / 2, moveCursorTexture.Size().y / 2);
+            Cursor.SetCursor(moveCursorTexture, new Vector2(16, 16), CursorMode.ForceSoftware);
         }
         else
             Cursor.SetCursor(null, Vector2.zero, CursorMode.ForceSoftware);
@@ -94,7 +92,7 @@ public class CameraControl : MonoBehaviour
         {
 
             deltaMousePosition = currentMousePosition - previousMousePosition;
-            mousePositionSum += deltaMousePosition * Time.deltaTime;
+            mousePositionSum += deltaMousePosition * Time.deltaTime * 0.25f;
             mousePositionSum.y = Mathf.Clamp01(mousePositionSum.y);
 
         }
