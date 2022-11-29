@@ -8,7 +8,6 @@ using static UnityEngine.EventSystems.EventTrigger;
 
 public class CameraControl : MonoBehaviour
 {
-    const float PI = 3.14159f;
     const float animationDuration = 0.5f;
 
     public Texture2D moveCursorTexture;
@@ -18,14 +17,14 @@ public class CameraControl : MonoBehaviour
     [Range(2f, 10f)]
     public float radius = 5;
 
-    public float scrollScale = 1;
+    public float scrollScale = 30;
 
     public GameObject target;
 
     public float circularAngle;
 
     private int modenum = 0;
-    public bool isCamLerp = false;
+    private bool isCamLerp = false;
     Vector3 viewCamPos;
     Vector3 boardCamPos;
 
@@ -48,18 +47,18 @@ public class CameraControl : MonoBehaviour
     private void Update()
     {
         SetCursor();
+
         if (!isCamLerp)
         {
             cammode();
             ChangeAngleAndRad();
         }
 
-
         if (Input.GetKeyDown("space") && !isCamLerp)
         {
             SwitchCameraMode();
-
         }
+
 
         SetMousePosition();
 
@@ -79,7 +78,7 @@ public class CameraControl : MonoBehaviour
     private void ChangeAngleAndRad()
     {
         camTarAngle = mousePositionSum.y;
-        radius -= Input.mouseScrollDelta.y * scrollScale;
+        radius -= Input.mouseScrollDelta.y * Time.deltaTime * scrollScale;
         radius = Mathf.Clamp(radius, 3, 10);
     }
 
@@ -96,7 +95,6 @@ public class CameraControl : MonoBehaviour
             mousePositionSum.y = Mathf.Clamp01(mousePositionSum.y);
 
         }
-        Debug.Log(mousePositionSum);
     }
 
     private void SwitchCameraMode()
@@ -106,7 +104,6 @@ public class CameraControl : MonoBehaviour
         {
             case 0:
                 boardCamPos = new Vector3(target.transform.position.x, target.transform.position.y + radius, target.transform.position.z);
-
                 StartCoroutine(CameraLerp(transform.position, boardCamPos));
 
                 cammode = BoardMode;
@@ -115,10 +112,9 @@ public class CameraControl : MonoBehaviour
                 break;
             case 1:
                 //angle
-                circularAngle = mousePositionSum.x * 2 * PI;
+                circularAngle = mousePositionSum.x * 2 * Mathf.PI;
                 //camera position on a circle
                 viewCamPos = new Vector3(target.transform.position.x + Mathf.Cos(circularAngle) * radius, radius * Mathf.Tan(camTarAngle), target.transform.position.z + Mathf.Sin(circularAngle) * radius);
-
                 StartCoroutine(CameraLerp(transform.position, viewCamPos));
 
                 cammode = ViewMode;
@@ -132,18 +128,21 @@ public class CameraControl : MonoBehaviour
     private void ViewMode()
     {
         //angle
-        circularAngle = mousePositionSum.x * 2 * PI;
+        circularAngle = mousePositionSum.x * 2 * Mathf.PI;
         //camera position on a circle
         viewCamPos = new Vector3(target.transform.position.x + Mathf.Cos(circularAngle) * radius, radius * Mathf.Tan(camTarAngle), target.transform.position.z + Mathf.Sin(circularAngle) * radius);
         transform.position = viewCamPos;
         //gameobject looks at our target
         transform.LookAt(target.transform, Vector3.up);
+        // transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position, Vector3.up);
     }
 
     private void BoardMode()
     {
         boardCamPos = new Vector3(target.transform.position.x, target.transform.position.y + radius, target.transform.position.z);
         transform.position = boardCamPos;
+        //С помощью этой функции можно крутить камеру, как диджейский диск
+        //transform.RotateAround(target.transform.position, Vector3.up, -deltaMousePosition.x);
 
         transform.rotation = Quaternion.Euler(90, -mousePositionSum.x * 360, 90);
     }
@@ -154,11 +153,14 @@ public class CameraControl : MonoBehaviour
         float t = 0;
         while (t < 1)
         {
-            transform.position = Vector3.Lerp(startpoint, endpoint, t);
-            transform.LookAt(target.transform, Vector3.up);
+
+            transform.position = Vector3.Slerp(startpoint, endpoint, t);
             t += Time.deltaTime / animationDuration;
+            transform.LookAt(target.transform, Vector3.up);
+            //transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position, Vector3.up);
             yield return null;
         }
+        // transform.position = endpoint;
         isCamLerp = false;
     }
 
