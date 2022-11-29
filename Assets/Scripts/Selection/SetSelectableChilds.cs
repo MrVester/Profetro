@@ -15,7 +15,7 @@ public class SetSelectableChilds : MonoBehaviour
             if (child.name != "_Border" && child.name != "_Center")
             {
                 child.gameObject.AddComponent<MeshCollider>();
-                child.gameObject.AddComponent<Selectable>();
+                child.gameObject.AddComponent<SelectableTile>();
             }
         }
     }

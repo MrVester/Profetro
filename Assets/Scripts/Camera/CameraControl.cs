@@ -13,7 +13,7 @@ public class CameraControl : MonoBehaviour
     public Texture2D moveCursorTexture;
 
     [Range(0f, 1f)]
-    public float camTarAngle = 0.5f;
+    public float camTarAngle;
     [Range(2f, 10f)]
     public float radius = 5;
 
@@ -42,6 +42,7 @@ public class CameraControl : MonoBehaviour
     private void OnEnable()
     {
         cammode = ViewMode;
+        mousePositionSum.y = 0.5f;
     }
 
     private void Update()

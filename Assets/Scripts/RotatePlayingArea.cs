@@ -11,7 +11,7 @@ public class RotatePlayingArea : MonoBehaviour
     const float animationDuration = 0.5f;
 
     public static UnityEvent onRotationStartEvent = new UnityEvent();
-    public static UnityEvent onRotationChangedEvent = new UnityEvent();
+    public static UnityEvent onRotationEndEvent = new UnityEvent();
 
     void Update()
     {
@@ -42,6 +42,6 @@ public class RotatePlayingArea : MonoBehaviour
         }
         target.transform.rotation = endrot;
         isRotating = false;
-        onRotationChangedEvent?.Invoke();
+        onRotationEndEvent?.Invoke();
     }
 }

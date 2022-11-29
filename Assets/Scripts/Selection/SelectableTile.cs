@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class Selectable : MonoBehaviour
+public class SelectableTile : MonoBehaviour
 {
     const float animationDuration = 0.1f;
 
@@ -14,7 +14,9 @@ public class Selectable : MonoBehaviour
     private bool isTileSelected = false;
     private bool isTileLerp = false;
     private bool isRotating = false;
-
+    public TileManager tiles;
+    
+   
     /* public Material selectMat;
      public Material deselectMat;*/
 
@@ -26,7 +28,8 @@ public class Selectable : MonoBehaviour
     private void Start()
     {
         RotatePlayingArea.onRotationStartEvent.AddListener(SetisRotationTrue);
-        RotatePlayingArea.onRotationChangedEvent.AddListener(SetisRotationFalse);
+        RotatePlayingArea.onRotationEndEvent.AddListener(SetisRotationFalse);
+        tiles = this.transform.GetComponentInParent< TileManager > ();
     }
 
     private void SetisRotationTrue()
@@ -35,6 +38,7 @@ public class Selectable : MonoBehaviour
     }
     private void SetisRotationFalse()
     {
+        DropTile();
         isRotating = false;
     }
     public void Select()
@@ -48,26 +52,39 @@ public class Selectable : MonoBehaviour
         GetComponent<Renderer>().material.color = deselectColor;
 
     }
-    public void CLickTile()
+    public GameObject CLickTile()
     {
         //Если объект не поворачивается
-        if (isRotating) return;
+        if (isRotating) return null;
         //Если выбран
         if (!isTileLerp && !isTileSelected)
 
         {
-            StartCoroutine(TileLerp(transform.position, transform.position + new Vector3(0, 0.1f, 0)));
-            isTileSelected = true;
+            RaiseTile();
+            return this.gameObject;
         }
         else
             //Если не выбран
-            if (!isTileLerp && isTileSelected)
+            DropTile();
+        return null;
+    }
+
+    private void RaiseTile()
+    {
+        StartCoroutine(TileLerp(transform.position, transform.position + new Vector3(0, 0.1f, 0)));
+        isTileSelected = true;
+    }
+
+    public void DropTile()
+    {
+        if (!isTileLerp && isTileSelected)
 
         {
             StartCoroutine(TileLerp(transform.position, transform.position - new Vector3(0, 0.1f, 0)));
             isTileSelected = false;
         }
     }
+
     private IEnumerator TileLerp(Vector3 startpoint, Vector3 endpoint)
     {
         isTileLerp = true;
@@ -83,5 +100,17 @@ public class Selectable : MonoBehaviour
         isTileLerp = false;
     }
 
+    public bool IsAccessibleForPlayer(GameObject TotalTile, int PlayerID)
+    {
+        var tileArray = tiles.GetAvailableTilesForPlayer(PlayerID);
+        foreach (var tile in tileArray)
+        {
+            if (TotalTile == tile)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
