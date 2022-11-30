@@ -103,7 +103,7 @@ public class TileManager : MonoBehaviour
         {
             if (child.name != "_Border" && child.name != "_Center")
             {
-                Debug.Log((int)child.name[1] - 48);
+               
                 if ((int)child.name[1] - 48 <= 2)
                 {
                     if (child.name[0] == letterUpper)

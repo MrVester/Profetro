@@ -14,9 +14,19 @@ public class SelectableTile : MonoBehaviour
     private bool isTileSelected = false;
     private bool isTileLerp = false;
     private bool isRotating = false;
-    public TileManager tiles;
-    
-   
+    private TileManager tiles;
+    private bool isTileTaken = false;
+
+    public bool IsTileTaken
+    {
+        get { return isTileTaken; }
+
+        set  { isTileTaken = value; }
+    }
+
+
+
+
     /* public Material selectMat;
      public Material deselectMat;*/
 

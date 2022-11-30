@@ -27,19 +27,22 @@ public class SelectController : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             SelectableUnit selectable = hit.collider.gameObject.GetComponent<SelectableUnit>();
-            if (selectable && selectable.IsAccessibleForPlayer(PlayerID))
+            if (selectable && selectable.IsAccessibleForPlayerUnit(PlayerID))
             {
-                if (Input.GetMouseButtonDown(0) && LastSelectedTile.transform.childCount == 0)
+                if(LastSelectedTile && !LastSelectedTile.GetComponent<SelectableTile>().IsTileTaken)
                 {
-                    selectable.CLickUnit(LastSelectedTile);
-                }
+                    if (Input.GetMouseButtonDown(0)  && selectable.IsAccessibleForPlayerTile(PlayerID, LastSelectedTile))
+                    {
+                        selectable.CLickUnit(LastSelectedTile);
+                    }
 
-                if (CurrentUnit && CurrentUnit != selectable)
-                {
-                    CurrentUnit.Deselect();
+                    if (CurrentUnit && CurrentUnit != selectable)
+                    {
+                        CurrentUnit.Deselect();
+                    }
+                    CurrentUnit = selectable;
+                    selectable.Select();
                 }
-                CurrentUnit = selectable;
-                selectable.Select();
             }
             else
             if (CurrentUnit)
@@ -64,9 +67,9 @@ public class SelectController : MonoBehaviour
             if (selectable && selectable.IsAccessibleForPlayer(selectable.gameObject, PlayerID ) )
             {
 
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0) && !selectable.GetComponent<SelectableTile>().IsTileTaken)
                 {
-                    if (LastSelectedTile != selectable.gameObject && LastSelectedTile)
+                    if (LastSelectedTile != selectable.gameObject && LastSelectedTile )
                     {
                         LastSelectedTile.GetComponent<SelectableTile>().DropTile();
                         LastSelectedTile = selectable.CLickTile();
