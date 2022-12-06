@@ -8,9 +8,9 @@ public class SelectableTile : MonoBehaviour
 {
     const float animationDuration = 0.1f;
 
-    private Color selectColor = Color.green;
-    private Color deselectColor = Color.white;
-
+    
+    
+    private bool isTileActive = false;
     private bool isTileSelected = false;
     private bool isTileLerp = false;
     private bool isRotating = false;
@@ -23,7 +23,10 @@ public class SelectableTile : MonoBehaviour
 
         set  { isTileTaken = value; }
     }
-
+    public bool IsTileSelected
+    {
+        get { return isTileSelected; }
+    }
 
 
 
@@ -53,13 +56,14 @@ public class SelectableTile : MonoBehaviour
     }
     public void Select()
     {
-
-        GetComponent<Renderer>().material.color = selectColor;
+        isTileSelected = true;
+        GetComponent<Renderer>().material = transform.root.GetComponent<SelectMaterial>().GetSelectable();
 
     }
     public void Deselect()
     {
-        GetComponent<Renderer>().material.color = deselectColor;
+        isTileSelected = false;
+        GetComponent<Renderer>().material = transform.root.GetComponent<SelectMaterial>().GetPlayable();
 
     }
     public GameObject CLickTile()
@@ -67,7 +71,7 @@ public class SelectableTile : MonoBehaviour
         //Если объект не поворачивается
         if (isRotating) return null;
         //Если выбран
-        if (!isTileLerp && !isTileSelected)
+        if (!isTileLerp && !isTileActive)
 
         {
             RaiseTile();
@@ -82,16 +86,16 @@ public class SelectableTile : MonoBehaviour
     private void RaiseTile()
     {
         StartCoroutine(TileLerp(transform.position, transform.position + new Vector3(0, 0.1f, 0)));
-        isTileSelected = true;
+        isTileActive = true;
     }
 
     public void DropTile()
     {
-        if (!isTileLerp && isTileSelected)
+        if (!isTileLerp && isTileActive)
 
         {
             StartCoroutine(TileLerp(transform.position, transform.position - new Vector3(0, 0.1f, 0)));
-            isTileSelected = false;
+            isTileActive = false;
         }
     }
 

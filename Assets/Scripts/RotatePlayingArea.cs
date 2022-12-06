@@ -6,7 +6,7 @@ using static UnityEngine.GraphicsBuffer;
 
 public class RotatePlayingArea : MonoBehaviour
 {
-    private bool isRotating = false;
+    public bool isRotating = false;
     public GameObject target;
     const float animationDuration = 0.5f;
 

@@ -38,15 +38,7 @@ public class TileManager : MonoBehaviour
 
 
         TileSearch();
-        Debug.Log(upperRow[PlayersIDs[3]][0].name);
-
-        foreach (GameObject gameobj in GetAvailableTilesForPlayer(1))
-        {
-
-            Debug.Log(gameobj.name);
-
-
-        }
+        
     }
 
 
@@ -92,7 +84,7 @@ public class TileManager : MonoBehaviour
         for (int i = 0; i < PlayersIDs.Length; i++)
         {
             PlayersIDs[i] = (PlayersIDs[i] + 1) % (PlayersIDs.Length * 2);
-            Debug.Log(PlayersIDs[i] + "  " + PlayersIDs.Length);
+            
         }
     }
 
