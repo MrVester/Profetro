@@ -1,7 +1,9 @@
 # Profetro
 The prototype of the game, for the further implementation of the project.
 
-
+Download Link:
+<a href="https://github.com/MrVester/Profetro/releases/tag/Profetro
+" download="FILENAME">Profetro</a>
 
 Creators: Spitsyn Makar, Averchenkov Mikhail, Vlad Slemnev.
 
